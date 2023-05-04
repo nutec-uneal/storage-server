@@ -5,14 +5,16 @@ O servidor de armazenamento permite que você centralize seus armazentos em some
 ## Sumário
 
 - [Storage Server](#storage-server)
-    - [Sumário](#sumário)
-    - [Requisitos](#requisitos)
-    - [Instalação](#instalação)
-    - [Configuração](#configuração)
-        - [Discos](#discos)
-        - [Usuários](#usuários)
-        - [Rede](#rede)
-        - [Interface Web em Https](#interface-web-em-https)
+  - [Sumário](#sumário)
+  - [Requisitos](#requisitos)
+  - [Instalação](#instalação)
+  - [Configuração](#configuração)
+    - [Discos](#discos)
+    - [Usuários](#usuários)
+    - [Rede](#rede)
+    - [Interface Web em Https](#interface-web-em-https)
+    - [Agendamento de tarefas](#agendamento-de-tarefas)
+    - [SSD para cache](#ssd-para-cache)
 
 
 <br>
@@ -34,7 +36,7 @@ Para montar um servidor TrueNAS precisamos ter os seguintes itens:
 
 Site oficial TrueNAS: (https://www.truenas.com/#)
 
-Documentação TrueNAS: (https://www.truenas.com/docs/)
+Para qualquer dúvida consulte a documentação do TrueNAS: (https://www.truenas.com/docs/)
 
 Versão utilizada no teste: TrueNAS-SCALE-22.12.1
 
@@ -51,10 +53,11 @@ Após o download queime em um pendrive e dê inicio a instalação.
 1. A primeira tela vai aparecer 4 opções, selecione Install/Upgrade.
 2. Após ele vai perguntar em qual disco o sistema deve ser instalado, selecione o Ssd.
 3. Agora ele vai dar um aviso que vai apagar tudo do disco selecionado, cheque se o disco é o correto e pode prosseguir.
-4. Agora é vai pedir a criação de uma senha para o root.
-5. Após isso o sistema vai ser instalado, aguarde o processo acabar.
-6. Quando encerrar vai abrir o terminal com várias opções e com o ip da máquina para acessar a interface web.
-7. Digite o ip no navegador e acesse usando a senha criada.
+4. Agora é vai perguntar qual usuário será utilizado para acessar a interface web, selecione Admin.
+5. Informe uma senha para o usuário Admin.
+6. Após isso o sistema vai ser instalado, aguarde o processo acabar.
+7. Quando encerrar vai abrir o terminal com várias opções e com o ip da máquina para acessar a interface web.
+8. Digite o ip no navegador e acesse usando o usuário escolhido e a senha criada.
 
 <br>
 
@@ -92,7 +95,7 @@ Mas nesse caso será pedido um usuário e senha, porém o que utilizamos para ac
 
 ### Usuários
 
-Você pode criar vários usuários e limitar o que cada pode fazer, tendo assim uma segurança. Nesse exemplo precisamos criar um usuário que possa acessar nossa pasta compartilhada via Samba. Para isso:
+Você pode criar vários usuários e limitar o que cada um pode fazer, tendo assim uma segurança. Nesse exemplo precisamos criar um usuário que possa acessar nossa pasta compartilhada via Samba. Para isso:
 
 1. Acesse a área ***Credentials*** no menu lateral.
 2. Será exibida várias opções, clique em Local Users.
@@ -145,6 +148,61 @@ Por padrão o TrueNAS vem habilitado para responder nas portas 80 e 443, porém 
 9. Você pode ser derrubado da página caso esteja acessando via porta 80, para isso pasta abrir outra aba e acessar novamente.
 
 
-***Obs: Para saber mais sobre certificados SSL/TLS consulte o  [Guia de Certificados](https://github.com/nutecuneal/proxy-manager-deployer#certificado-ssltls-https)***
+***Obs: Para saber mais sobre certificados SSL/TLS consulte o  [Guia de Certificados](https://github.com/nutecuneal/proxy-manager-deployer#certificado-ssltls-https). A localização do certificado gerado pelo TrueNAS fica em Credentials/Certficates.***
 
+### Agendamento de tarefas
 
+O TrueNAS permite que você crie um agendamento de tarefas, seja para tarefas referentes ao sistema ou para verificação de saúde dos discos. Nesse exemplo vamos configurar um **Cron Job** para fazer reboot do servidor em uma determinada quantidade de dias. Para isso:
+
+1. Acesse a área ***System Settings*** no menu lateral e selecione Advanced.
+2. Procure pela janela **Cron Jobs** e clique em Add.
+3. Vai aparecer um aviso, leia e continue.
+4. Na nova janela, informe uma descrição caso deseje sobre o que esse tarefa vai fazer.
+5. Você precisa informar qual comando será realizado, nesse exemplo é o comando reboot.
+6. Você precisa informar qual usuário vai executar esse comando, nesse exemplo será o usuário root.
+7. Você precisa decidir o agendamento de quando essa tarefa será executada, nesse exemplo será toda semana nos domingos.
+8. Marque a caixa de Enabled.
+9. Verifique tudo e clique em salvar.
+10. De volta a janela do Cron Jobs você pode testar o comando clicando no ícone de **Play Jobs**.
+
+Se tudo estiver funcionando a tarefa esta criada, você pode criar outras dependendo da sua necessidade.
+
+Você pode fazer agendamento de verificação dos discos também, um exemplo seria checar a saúde dos discos. Para isso:
+
+1. Acesse a área ***Data Protection*** no menu lateral.
+2. Procure pela janela **S.M.A.R.T. Tests** e clique em Add.
+3. Na nova janela você pode marcar se quer executar essa tarefa em todos os discos ou somente em um.
+4. Você precisa decidir o tipo da verificação, nesse exemplo vamos escolher a verificação rápida.
+5. Você pode adicionar uma descrição caso deseje sobre o que essa tarefa faz.
+6. Você precisa decidir o agendamento de quando essa tarefa será executada, nesse exemplo será todo dia as 23:59hrs.
+7. Verifique tudo e clique em salvar.
+8. Aguarde a execução da tarefa e veja se ocorreu como planejado.
+
+Você pode criar outras tarefas dependendo da sua necessidade.
+
+### SSD para cache
+
+O TrueNAS já utiliza a memória ram disponível para fazer cache, mas isso não pode ser suficiente, e para adicionar mais memória o valor pode ficar muito alto. Porém podemos utilizar um SSD (Solid State Drive) ou mais para fazer o cache dos dados mais acessados, agilizando o acesso a essas informações e custando um pouco menos do que memórias.
+
+Temos duas formas de adicionar um SSD para cache, a primeira é adicionar ele na hora da criação da **Pool** e a segunda é quando a **Pool** já foi criada usando somente os HDs.
+
+Primeira opção:
+
+1. Para isso faça o processo descrito na criação de uma pool em [Discos](#discos);
+2. Quando estiver adicionando o nome da Pool, você deve procurar uma caixa de seleção escrito Add Vdev.
+3. Clique em Add Vdev e vai aparecer várias opções, nesse caso precisamos apenas da opção cache.
+4. Abaixo vai aparecer os discos disponíveis, selecione os HDs e o SSD.
+5. No fim coloque os HDs para fazer o seu RAID e coloque o SDD na área de Vdev para ficar responsável pelo cache.
+6. Verifique tudo e clique em Create.
+
+Segunda opção:
+
+1. Acesse a área ***Storage*** no menu lateral.
+2. Procure pela janela **Topology** e clique em Manage Devices.
+3. Agora procure a opção **Add VDEV** e clique nela.
+4. Na nova janela, clique em Add Vdev e vai aparecer várias opções, nesse caso precisamos apenas da opção cache.
+5. Abaixo vai aperecer os discos disponíveis, selecione o SSD.
+6. Adicione o SSD no Vdev cache para ser o responsável pelo cache.
+7. Verifique tudo e clique em Add Vdevs.
+
+Utilizando qualquer das opções acima agora temos um disco somente para cache, isso vai economizar nosso tempo e permite uma escalabilidade no servidor. Para adicionar mais SSDs só repetir a segunda opção.
