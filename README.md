@@ -15,6 +15,9 @@ O servidor de armazenamento permite que você centralize seus armazentos em some
     - [Interface Web em Https](#interface-web-em-https)
     - [Agendamento de tarefas](#agendamento-de-tarefas)
     - [SSD para cache](#ssd-para-cache)
+    - [Discos com problemas](#discos-com-problemas)
+    - [Backup](#backup)
+  - [Atualização](#atualização)
 
 
 <br>
@@ -205,4 +208,71 @@ Segunda opção:
 6. Adicione o SSD no Vdev cache para ser o responsável pelo cache.
 7. Verifique tudo e clique em Add Vdevs.
 
-Utilizando qualquer das opções acima agora temos um disco somente para cache, isso vai economizar nosso tempo e permite uma escalabilidade no servidor. Para adicionar mais SSDs só repetir a segunda opção.
+Utilizando qualquer uma das opções acima agora temos um disco somente para cache, isso vai economizar nosso tempo e permite uma escalabilidade no servidor. Para adicionar mais SSDs só repetir a segunda opção.
+
+### Discos com problemas
+
+Caso algum disco apresente problema você pode fazer a sua substituição, caso esteja utilizando algum RAID com redundância, nem dado será perdido. Nesse exemplo estamos utilizando o RAID 1, para fazer a troca:
+
+- Caso o novo disco já esteja instalado no servidor
+    
+    1. Acesse a área ***Storage*** no menu lateral.
+    2. Procure pela janela **Topology** e clique em **Manage Devices**.
+    3. Clique em **MIRROR** e vai exibir os discos utilizados nesse RAID.
+    4. Clique sobre o disco que esta com defeito.
+    5. Ao lado vai aparecer várias informações sobre o disco, faça uma rolagem até encontrar **Disk Info**.
+    6. Clique no botão Replace.
+    7. Vai perguntar qual outro disco será colocado no lugar.
+    8. Você também tem a opção de forçar a troca, use-a caso necessário.
+    9. Verifique se selecionou o disco certo e clique em **Replace Disk**.
+    10. Aguarde o processo acabar.
+    11. Verifique se nenhum dado foi perdido durante a mudança.
+    12. Desligue o servidor, tire o disco defeituoso e ligue o servidor novamente.
+
+- Com o disco fora do servidor
+
+    1. Desligue o servidor.
+    2. Retire o servidor defeituoso e coloque o novo no lugar.
+    3. Ligue o servidor novamente e acesse a interface.
+    4. Para adicionar o novo disco na pool refaça os passos de 1-11, descritos acima no exemplo do disco já instalado no sistema.
+    5. A diferença será no passo 4, pois ao invés de aparecer o nome do disco vai aparecer uma numeração.
+    6. Verifique se nenhum dado foi perdido.
+
+***Obs: Lembre que os discos devem ser do mesmo tamanho na hora da substituição por um novo. Verifique também os serviços que você esta utilizando, pois eles podem parar devido a troca dos discos, exemplo.: Samba***
+
+### Backup
+
+Precisamos ter backup dos nossos dados e arquivos de configuração caso o servidor apresente algum problema, temos como fazer backup utilizando Snapshots, fazendo backup em Cloud e backup das configurações do sistema. Vamos utilizar as opções de configurações do sistema e snapshots nesse exemplo:
+
+  - Arquivo de Configuração
+
+    1. Acesse a área ***System Settings*** no menu lateral e clique em General.
+    2. Procure por uma caixa de seleção no canto superior direito onde esta escrito **Manage Configuration**.
+    3. Clique na caixa e selecione a opção **Download File**.
+    4. Vai aparecer um aviso, leia com bastante atenção.
+    5. A opção **Export Password Secret Seed** deve ser marcada caso queira utilizar essas configurações em uma instalação em outra máquina, mas atenção pois isso vai descriptografar todas as senhas.
+    6. Para usar na própria máquina não precisa marcar.
+    7. Salve o arquivo em um lugar seguro, onde ninguém desconhecido possa acessar. Recomendado colocar em um local onde seja feito backup regularmente.
+    8. Para enviar o arquivo para o sistema, refaça os passos 1 e 2.
+    9. Clique na caixa e selecione **Upload File**, vai aparecer um aviso, leia com atenção.
+    10. Clique para selecionar o arquivo e após clique em Upload.
+    11. O servidor vai reiniciar para aplicar as configurações.
+    12. Acesse o servidor e verifique se tudo foi aplicado corretamente.
+
+<br>
+
+## Atualização
+
+A atualização do servidor é uma forma de manter o servidor seguro com as novas correções de bugs, recursos de segurança e novidades no sistema. Para isso:
+
+1. Acesse a área ***System Settings*** no menu lateral e clique em Update.
+2. O sistema vai verificar se tem novas atualizações, se tiver vai exibir abaixo.
+3. Lembre de fazer o backup de seus dados mais importantes, e garanta que nem um novo dado esta sendo guardado na hora da atualização.
+4. Para iniciar a atualização clique em **Download Updates**.
+5. Vai aparecer um aviso perguntando se você quer salvar o arquivo de configuração, qualquer dúvida sobre isso consulte a seção [Backup](#backup).
+6. Após vai aparecer se você quer somente baixar a atualização ou baixar, aplicar a atualização e reiniciar o sistema, nesse exemplo vamos selecionar em aplicar também.
+7. Clique para iniciar o download e aguarde o processo terminar.
+8. Quando o servidor reiniciar, acesse e veja se atualização ocorreu da forma correta e se não quebrou nada.
+
+***Obs: Verifique em qual train de atualização você esta utilizando, recomendado estar na release. As outras trains podem ser de testes ou desenvolvimento e trazer vários bugs. Qualquer dúvida consulte (https://www.truenas.com/docs/scale/scaletutorials/systemsettings/updatescale/)***
+
