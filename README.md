@@ -18,6 +18,7 @@ O servidor de armazenamento permite que você centralize seus armazentos em some
     - [Discos com problemas](#discos-com-problemas)
     - [Backup](#backup)
     - [Alterar idioma e horário](#alterar-idioma-e-horário)
+  - [Autenticação em 2 fatores (2FA)](#autenticação-em-2-fatores-2fa)
   - [Atualização](#atualização)
 
 
@@ -38,11 +39,11 @@ Para montar um servidor TrueNAS precisamos ter os seguintes itens:
 
 ***Obs: A quantidade de HDs pode variar dependendo da sua necessidade e qual o modo de RAID (Redundant Array of Independent Disks) escolhido, porém sempre lembre que todos devem possuir o mesmo tamanho. A quantidade de ssd para cache pode variar de acordo com sua necessidade.***
 
-Site oficial TrueNAS: (https://www.truenas.com/#)
+***Site oficial TrueNAS: (https://www.truenas.com/#)***
 
-Para qualquer dúvida consulte a documentação do TrueNAS: (https://www.truenas.com/docs/)
+***Para qualquer dúvida consulte a documentação do TrueNAS: (https://www.truenas.com/docs/)***
 
-Versão utilizada no teste: TrueNAS-SCALE-22.12.1
+***Versão utilizada no teste: TrueNAS-SCALE-22.12.1***
 
 <br>
 
@@ -314,6 +315,51 @@ Manter o horário atualizado é bom para evitar problemas em logs, autenticaçã
 6. Caso precise você pode alterar o formato de exibição da data.
 7. Caso precise você pode alterar o formato de exibição do horário.
 8. Verique tudo e clique em Save.
+
+<br>
+
+## Autenticação em 2 fatores (2FA)
+
+Com a 2FA conseguimos manter o sistema mais seguro, pois além de utilizar a senha, será nescessário digitar uma quantidade de digitos vindas de app autenticador externo, exemplo: Microsoft Authenticator, Google Authenticator. Ele utiliza o one-time password (OTP), que gera uma conjunto de números dependendo da hora, assim ambos servidor e telefone, devem estar com as horas sincronizadas. Caso o servidor não esteja, você precisa:
+
+- Acessar o terminal via usuário admin.
+```bash
+  # utilize o comando para ver a hora do servidor
+
+  sudo hwclock
+
+  # Para alterar a hora utilize o comando abaixo, informando a hora e os minutos
+
+  sudo hwclock --set --date 10:30 --update-drift
+
+  # Verique se a hora foi alterada, reinicie o servidor e veja se a hora atualizada se manteve.
+```
+
+Pronto, o servidor esta com a hora sincronizada com o seu celular, agora precisamos ativar a autenticação em dois fatores no sistema, para isso:
+
+1. Acesse a área ***Credentials*** no menu lateral e clique em **two-factor authentication**
+2. Será aberta uma nova janela.
+3. Você precisa informa a quantidade de digítos que serão gerados, nesse exemplo iremos escolher 6 que é o padrão.
+4. Você precisa informar o intervalo em que os numeros serão alterados, nesse exemplo iremos utilizar 30 que é o padrão.
+5. Em **Window** podemos estender o tempo de duração dos digítos, nesse exemplo vamos utilizar 0, pois queremos que após cada intervalo seja necessário informar um novo conjunto de digítos.
+6. Agora clique o botão **Enable Two-Factor Authenticator**, será exibido um QR Code que deve ser escaneado no app autenticador no celular.
+7. Após isso, o 2FA já foi ativado, você pode fazer logout e tentar acessar novamente já informando os digítos.
+
+Caso você precise acessar o servidor via SSH, você também poderá ativar o 2FA nele, para isso:
+
+1. Refaça os passos descritos acima de 1 a 6.
+2. Procure pela caixa de seleção **Enable Two-Factor Auth for SSH** e clique nela.
+3. Verifique tudo e clique em Save.
+4. Acesse a área ***System Settings*** no menu lateral e clique em **Services**.
+5. Procure pelo serviço SSH e o ative.
+6. Clique em editar o serviço SSH e será aberta uma nova janela.
+7. Selecione **Log in as Admin with Password** caso vá acesar com o usuário admin (Não recomendado). 
+8. Agora abra um terminal e tente fazer um conexão via ssh.
+9.  Após informar a senha do usuário, será necessário informar o código em digitos do app autenticador.
+
+***Obs: Você pode acessar o terminal do servidor via interface gráfica caso não deseje ativar o serviço SSH. Acessando "System Settings/Shell" você tem acesso ao terminal do servidor.***
+
+***Caso esteja com problema em acessar a interface gráfica utilizando 2FA, lembre de verificar se os dispositivos estão com o horário sincronizados, caso não funcione mesmo com o horário sincronizado você pode resetar a senha do usuário admin via terminal no próprio servidor, isso vai desativar o 2FA. Qualquer dúvida consulte a documentação (https://www.truenas.com/docs/scale/scaletutorials/credentials/2fascale/) e assista a esse vídeo (https://www.youtube.com/watch?v=F2skM7h9RUk)***
 
 <br>
 
